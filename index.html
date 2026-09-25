@@ -6,8 +6,51 @@
     <title>Unity Web Player | LaneBattle</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+    <!-- 17장: 모바일(터치 기기)에서 세로로 들고 있으면 게임을 가리고 "가로로 돌려주세요" 안내만 보여준다.
+         Screen Orientation Lock API는 iOS Safari가 지원하지 않아 강제 회전이 불가능하므로,
+         실제로 기기를 돌리면 미디어 쿼리가 자동으로 바뀌어 안내가 사라지는 방식(순수 CSS, JS 불필요)으로 대체한다. -->
+    <style>
+      #unity-rotate-prompt {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        background: #101014;
+        color: #f0f0f0;
+        font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+        text-align: center;
+        padding: 24px;
+      }
+      #unity-rotate-prompt .unity-rotate-icon {
+        font-size: 56px;
+        animation: unity-rotate-spin 1.6s ease-in-out infinite;
+      }
+      #unity-rotate-prompt p {
+        margin: 0;
+        font-size: 18px;
+        line-height: 1.5;
+      }
+      @keyframes unity-rotate-spin {
+        0%, 20% { transform: rotate(0deg); }
+        50%, 70% { transform: rotate(-90deg); }
+        100% { transform: rotate(-90deg); }
+      }
+      /* 터치 기기(호버 없음 + 굵은 포인터)이면서 세로일 때만 노출 — 세로 모니터를 쓰는 데스크톱은 건드리지 않는다. */
+      @media screen and (orientation: portrait) and (hover: none) and (pointer: coarse) {
+        #unity-container { display: none !important; }
+        #unity-rotate-prompt { display: flex; }
+      }
+    </style>
   </head>
   <body>
+    <div id="unity-rotate-prompt">
+      <div class="unity-rotate-icon">&#128241;</div>
+      <p>기기를 가로로 돌려주세요<br>Please rotate your device to landscape</p>
+    </div>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas" width=960 height=540 tabindex="-1"></canvas>
       <div id="unity-loading-bar">
@@ -52,12 +95,12 @@
       }
 
       var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/001.WebGL빌드.loader.js";
+      var loaderUrl = buildUrl + "/LaneBattle.loader.js";
       var config = {
         arguments: [],
-        dataUrl: buildUrl + "/001.WebGL빌드.data.unityweb",
-        frameworkUrl: buildUrl + "/001.WebGL빌드.framework.js.unityweb",
-        codeUrl: buildUrl + "/001.WebGL빌드.wasm.unityweb",
+        dataUrl: buildUrl + "/LaneBattle.data.unityweb",
+        frameworkUrl: buildUrl + "/LaneBattle.framework.js.unityweb",
+        codeUrl: buildUrl + "/LaneBattle.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "AIMaked",
         productName: "LaneBattle",
